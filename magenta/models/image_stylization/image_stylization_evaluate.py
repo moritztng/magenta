@@ -23,7 +23,6 @@ from magenta.models.image_stylization import learning
 from magenta.models.image_stylization import model
 import tensorflow.compat.v1 as tf
 from tensorflow.contrib import slim as contrib_slim
-from tensorflow.contrib.framework.python.ops import variables
 
 slim = contrib_slim
 
@@ -186,15 +185,12 @@ def main(_):
       eval_op = None
       num_evals = 1
 
-    savertransformer = tf.train.Saver(variables.get_variables("transformer"))
-
     slim.evaluation.evaluation_loop(
         master=FLAGS.master,
         checkpoint_dir=os.path.expanduser(FLAGS.train_dir),
         logdir=os.path.expanduser(FLAGS.eval_dir),
         eval_op=eval_op,
         num_evals=num_evals,
-        saver = savertransformer,
         eval_interval_secs=FLAGS.eval_interval_secs)
 
 
