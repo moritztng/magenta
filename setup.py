@@ -99,6 +99,7 @@ CONSOLE_SCRIPTS = [
     'magenta.models.image_stylization.image_stylization_finetune',
     'magenta.models.image_stylization.image_stylization_train',
     'magenta.models.image_stylization.image_stylization_transform',
+    'magenta.models.image_stylization.image_stylization_style_grid',
     'magenta.models.improv_rnn.improv_rnn_create_dataset',
     'magenta.models.improv_rnn.improv_rnn_generate',
     'magenta.models.improv_rnn.improv_rnn_train',
