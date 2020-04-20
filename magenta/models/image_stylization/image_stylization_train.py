@@ -23,6 +23,7 @@ from magenta.models.image_stylization import model
 from magenta.models.image_stylization import vgg
 import tensorflow.compat.v1 as tf
 from tensorflow.contrib import slim as contrib_slim
+from tensorflow.contrib.framework.python.ops import variables
 
 slim = contrib_slim
 
@@ -132,6 +133,8 @@ def main(unused_argv=None):
       init_fn_vgg = slim.assign_from_checkpoint_fn(vgg.checkpoint_file(),
                                                    slim.get_variables('vgg_16'))
 
+      savertransformer = tf.train.Saver(variables.get_variables("transformer"))
+
       # Run training
       slim.learning.train(
           train_op=train_op,
@@ -140,6 +143,7 @@ def main(unused_argv=None):
           is_chief=FLAGS.task == 0,
           number_of_steps=FLAGS.train_steps,
           init_fn=init_fn_vgg,
+          saver = savertransformer,
           save_summaries_secs=FLAGS.save_summaries_secs,
           save_interval_secs=FLAGS.save_interval_secs)
 
