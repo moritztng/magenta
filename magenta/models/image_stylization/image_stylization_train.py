@@ -59,6 +59,9 @@ flags.DEFINE_string('style_dataset_file', None, 'Style dataset file.')
 flags.DEFINE_string('style_weights', DEFAULT_STYLE_WEIGHTS, 'Style weights')
 flags.DEFINE_string('train_dir', None,
                     'Directory for checkpoints and summaries.')
+flags.DEFINE_string('checkpoint', None,
+                    'Checkpoint file for the pretrained model.')
+
 FLAGS = flags.FLAGS
 
 
@@ -132,6 +135,14 @@ def main(unused_argv=None):
       # Function to restore VGG16 parameters.
       init_fn_vgg = slim.assign_from_checkpoint_fn(vgg.checkpoint_file(),
                                                    slim.get_variables('vgg_16'))
+      # Function to restore N-styles parameters.
+      init_fn_n_styles = slim.assign_from_checkpoint_fn(
+          os.path.expanduser(FLAGS.checkpoint), slim.get_variables('transformer')) if FLAGS.checkpoint else None
+
+      def init_fn(session):
+        init_fn_vgg(session)
+        if init_fn_n_styles:
+          init_fn_n_styles(session)
 
       savertransformer = tf.train.Saver(variables.get_variables("transformer"))
 
@@ -142,7 +153,7 @@ def main(unused_argv=None):
           master=FLAGS.master,
           is_chief=FLAGS.task == 0,
           number_of_steps=FLAGS.train_steps,
-          init_fn=init_fn_vgg,
+          init_fn=init_fn,
           saver = savertransformer,
           save_summaries_secs=FLAGS.save_summaries_secs,
           save_interval_secs=FLAGS.save_interval_secs)
