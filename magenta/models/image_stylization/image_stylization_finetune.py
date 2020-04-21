@@ -130,9 +130,13 @@ def main(unused_argv=None):
       init_fn_vgg = slim.assign_from_checkpoint_fn(vgg.checkpoint_file(),
                                                    slim.get_variables('vgg_16'))
 
+      checkpoint = os.path.expanduser(FLAGS.checkpoint)
+      if tf.gfile.IsDirectory(checkpoint):
+        checkpoint = tf.train.latest_checkpoint(checkpoint)
+        tf.logging.info('loading latest checkpoint file: {}'.format(checkpoint))
+
       # Function to restore N-styles parameters.
-      init_fn_n_styles = slim.assign_from_checkpoint_fn(
-          os.path.expanduser(FLAGS.checkpoint), other_vars)
+      init_fn_n_styles = slim.assign_from_checkpoint_fn(checkpoint, other_vars)
 
       def init_fn(session):
         init_fn_vgg(session)
