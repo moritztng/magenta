@@ -150,7 +150,7 @@ def main(unused_argv=None):
         if FLAGS.checkpoint:
           init_fn_n_styles(session)
 
-      savertransformer = tf.train.Saver(variables.get_variables("transformer"))
+      savertransformer = tf.train.Saver(variables.get_variables("transformer"), save_relative_paths=True)
 
       # Run training
       slim.learning.train(

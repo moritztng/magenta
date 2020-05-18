@@ -65,6 +65,8 @@ flags.DEFINE_string('style_dataset_file', None, 'Style dataset file.')
 flags.DEFINE_string('style_weights', DEFAULT_STYLE_WEIGHTS, 'Style weights')
 flags.DEFINE_string('train_dir', None,
                     'Directory for checkpoints and summaries.')
+flags.DEFINE_string('restore_all_weights', False,
+                    'Whether to restore all weights')
 FLAGS = flags.FLAGS
 
 
@@ -79,10 +81,14 @@ def main(unused_argv=None):
                                               FLAGS.image_size)
       # Load style images and select one at random (for each graph execution, a
       # new random selection occurs)
-      _, style_labels, style_gram_matrices = image_utils.style_image_inputs(
-          os.path.expanduser(FLAGS.style_dataset_file),
-          batch_size=FLAGS.batch_size, image_size=FLAGS.image_size,
-          square_crop=True, shuffle=True)
+
+      _, style_labels, \
+          style_gram_matrices = image_utils.style_image_inputs(
+              os.path.expanduser(FLAGS.style_dataset_file),
+              batch_size=FLAGS.batch_size,
+              image_size=FLAGS.image_size,
+              square_crop=True,
+              shuffle=True)
 
     with tf.device(tf.train.replica_device_setter(FLAGS.ps_tasks)):
       # Process style and weight flags
@@ -136,7 +142,8 @@ def main(unused_argv=None):
         tf.logging.info('loading latest checkpoint file: {}'.format(checkpoint))
 
       # Function to restore N-styles parameters.
-      init_fn_n_styles = slim.assign_from_checkpoint_fn(checkpoint, other_vars)
+      vars = slim.get_variables('transformer') if FLAGS.restore_all_weights else other_vars
+      init_fn_n_styles = slim.assign_from_checkpoint_fn(checkpoint, vars)
 
       def init_fn(session):
         init_fn_vgg(session)
@@ -148,7 +155,7 @@ def main(unused_argv=None):
           total_loss, optimizer, clip_gradient_norm=FLAGS.clip_gradient_norm,
           variables_to_train=instance_norm_vars, summarize_gradients=False)
 
-      savertransformer = tf.train.Saver(variables.get_variables("transformer"))
+      savertransformer = tf.train.Saver(variables.get_variables("transformer"), save_relative_paths=True)
 
       # Run training.
       slim.learning.train(
