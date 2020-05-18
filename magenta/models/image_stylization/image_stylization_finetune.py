@@ -65,7 +65,7 @@ flags.DEFINE_string('style_dataset_file', None, 'Style dataset file.')
 flags.DEFINE_string('style_weights', DEFAULT_STYLE_WEIGHTS, 'Style weights')
 flags.DEFINE_string('train_dir', None,
                     'Directory for checkpoints and summaries.')
-flags.DEFINE_string('restore_all_weights', False,
+flags.DEFINE_boolean('restore_all_weights', False,
                     'Whether to restore all weights')
 FLAGS = flags.FLAGS
 
