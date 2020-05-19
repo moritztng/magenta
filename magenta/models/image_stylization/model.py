@@ -79,7 +79,7 @@ def transform(input_,
       with tf.variable_scope('contract'):
         h = conv2d(input_, FLAGS.kernel_size_endpoints, FLAGS.stride_endpoints, int(alpha * FLAGS.n_feature_maps_first_layer), 'conv1')
         for i in range(1, FLAGS.n_layers_convolutional):
-          h = conv2d(h, FLAGS.kernel_size_convolutional,  FLAGS.stride_convoluional, int(alpha * FLAGS.n_feature_maps_first_layer*(FLAGS.feature_maps_factor**i)), 'conv{}'.format(i+1))
+          h = conv2d(h, FLAGS.kernel_size_convolutional,  FLAGS.stride_convolutional, int(alpha * FLAGS.n_feature_maps_first_layer*(FLAGS.feature_maps_factor**i)), 'conv{}'.format(i+1))
       with tf.variable_scope('residual'):
         for i in range(FLAGS.n_layers_residual):
           h = residual_block(h, FLAGS.kernel_size_residual, 'residual{}'.format(i+1))
