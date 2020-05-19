@@ -24,8 +24,7 @@ from tensorflow.contrib import slim as contrib_slim
 
 slim = contrib_slim
 
-FLAGS = tf.app.flags.FLAGS
-
+flags = tf.app.flags
 flags.DEFINE_integer('n_layers_residual', 5,
                      'Number of residual layers')
 flags.DEFINE_integer('n_layers_convolutional', 3,
@@ -44,6 +43,7 @@ flags.DEFINE_integer('n_feature_maps_first_layer', 32,
                      'Number of feature maps in first layer')
 flags.DEFINE_integer('feature_maps_factor', 2,
                      'Factor of number of feature maps')
+FLAGS = flags.FLAGS
 
 def transform(input_,
               alpha=1.0,
