@@ -24,6 +24,26 @@ from tensorflow.contrib import slim as contrib_slim
 
 slim = contrib_slim
 
+FLAGS = tf.app.flags.FLAGS
+
+flags.DEFINE_integer('n_layers_residual', 5,
+                     'Number of residual layers')
+flags.DEFINE_integer('n_layers_convolutional', 3,
+                     'Number of convolutional layers')
+flags.DEFINE_integer('kernel_size_endpoints', 9,
+                     'Kernel size of first and last layer')
+flags.DEFINE_integer('kernel_size_convolutional', 3,
+                     'Kernel size of convolutional layers')
+flags.DEFINE_integer('kernel_size_residual', 3,
+                     'Kernel size of residual layers')
+flags.DEFINE_integer('stride_endpoints', 1,
+                     'Stride of first and last layer')
+flags.DEFINE_integer('stride_convolutional', 2,
+                     'Stride of convolutional layers')
+flags.DEFINE_integer('n_feature_maps_first_layer', 32,
+                     'Number of feature maps in first layer')
+flags.DEFINE_integer('feature_maps_factor', 2,
+                     'Factor of number of feature maps')
 
 def transform(input_,
               alpha=1.0,
@@ -57,19 +77,16 @@ def transform(input_,
         weights_initializer=tf.random_normal_initializer(0.0, 0.01),
         biases_initializer=tf.constant_initializer(0.0)):
       with tf.variable_scope('contract'):
-        h = conv2d(input_, 9, 1, int(alpha * 32), 'conv1')
-        h = conv2d(h, 3, 2, int(alpha * 64), 'conv2')
-        h = conv2d(h, 3, 2, int(alpha * 128), 'conv3')
+        h = conv2d(input_, FLAGS.kernel_size_endpoints, FLAGS.stride_endpoints, int(alpha * FLAGS.n_feature_maps_first_layer), 'conv1')
+        for i in range(1, FLAGS.n_layers_convolutional):
+          h = conv2d(h, FLAGS.kernel_size_convolutional,  FLAGS.stride_convoluional, int(alpha * FLAGS.n_feature_maps_first_layer*(FLAGS.feature_maps_factor**i)), 'conv{}'.format(i+1))
       with tf.variable_scope('residual'):
-        h = residual_block(h, 3, 'residual1')
-        h = residual_block(h, 3, 'residual2')
-        h = residual_block(h, 3, 'residual3')
-        h = residual_block(h, 3, 'residual4')
-        h = residual_block(h, 3, 'residual5')
+        for i in range(FLAGS.n_layers_residual):
+          h = residual_block(h, FLAGS.kernel_size_residual, 'residual{}'.format(i+1))
       with tf.variable_scope('expand'):
-        h = upsampling(h, 3, 2, int(alpha * 64), 'conv1')
-        h = upsampling(h, 3, 2, int(alpha * 32), 'conv2')
-        return upsampling(h, 9, 1, 3, 'conv3', activation_fn=tf.nn.sigmoid)
+        for i in range(1, FLAGS.n_layers_convolutional):
+          h = upsampling(h, FLAGS.kernel_size_convolutional, FLAGS.stride_convoluional, int(alpha * FLAGS.n_feature_maps_first_layer*(FLAGS.feature_maps_factor**(FLAGS.n_layers_convolutional-1-i))), 'conv{}'.format(i))
+        return upsampling(h, FLAGS.kernel_size_endpoints, FLAGS.stride_endpoints, 3, 'conv{}'.format(FLAGS.n_layers_convolutional), activation_fn=tf.nn.sigmoid)
 
 
 def conv2d(input_,

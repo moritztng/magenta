@@ -102,6 +102,7 @@ def main(unused_argv=None):
           tf.constant(style_coefficients), style_labels)
       style_weights = dict((key, style_coefficient * style_weights[key])
                            for key in style_weights)
+      print(style_weights)
 
       # Define the model
       stylized_inputs = model.transform(
