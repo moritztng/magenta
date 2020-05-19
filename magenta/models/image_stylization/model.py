@@ -85,7 +85,7 @@ def transform(input_,
           h = residual_block(h, FLAGS.kernel_size_residual, 'residual{}'.format(i+1))
       with tf.variable_scope('expand'):
         for i in range(1, FLAGS.n_layers_convolutional):
-          h = upsampling(h, FLAGS.kernel_size_convolutional, FLAGS.stride_convoluional, int(alpha * FLAGS.n_feature_maps_first_layer*(FLAGS.feature_maps_factor**(FLAGS.n_layers_convolutional-1-i))), 'conv{}'.format(i))
+          h = upsampling(h, FLAGS.kernel_size_convolutional, FLAGS.stride_convolutional, int(alpha * FLAGS.n_feature_maps_first_layer*(FLAGS.feature_maps_factor**(FLAGS.n_layers_convolutional-1-i))), 'conv{}'.format(i))
         return upsampling(h, FLAGS.kernel_size_endpoints, FLAGS.stride_endpoints, 3, 'conv{}'.format(FLAGS.n_layers_convolutional), activation_fn=tf.nn.sigmoid)
 
 
