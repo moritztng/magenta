@@ -41,6 +41,8 @@ flags.DEFINE_integer('ps_tasks', 0,
                      'are handled locally by the worker.')
 flags.DEFINE_integer('num_styles', None, 'Number of styles.')
 flags.DEFINE_float('alpha', 1.0, 'Width multiplier')
+flags.DEFINE_integer('log_every_n_steps', 100,
+                     'Frequency at which logs are printed')
 flags.DEFINE_integer('save_summaries_secs', 15,
                      'Frequency at which summaries are saved, in seconds.')
 flags.DEFINE_integer('save_interval_secs', 15,
@@ -157,6 +159,7 @@ def main(unused_argv=None):
       slim.learning.train(
           train_op=train_op,
           logdir=os.path.expanduser(FLAGS.train_dir),
+          log_every_n_steps=FLAGS.log_every_n_steps,
           master=FLAGS.master,
           is_chief=FLAGS.task == 0,
           number_of_steps=FLAGS.train_steps,
